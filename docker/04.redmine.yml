@@ -1,0 +1,41 @@
+name: cnd
+
+networks:
+  manage:
+    name: manage-network
+    external: true
+  db:
+    name: db-network
+    external: true
+      
+
+services:
+
+  redmine:
+    image: redmine:6.0.6-alpine3.22
+    ports:
+      - '4000:3000'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      #ALLOW_EMPTY_PASSWORD=yes
+      REDMINE_DB_MYSQL: mariadb-master
+      REDMINE_DB_DATABASE: redmine
+      REDMINE_DB_USERNAME: redmine
+      REDMINE_DB_PASSWORD: redmine
+      REDMINE_SECRET_KEY_BASE: "superlongrandomstring1234567890"
+      # Redis 설정
+      REDMINE_CACHE_STORE: "redis://redis:6379/0"
+      # 등록시 Can't verify CSRF token authenticity. 422 Invalid form authenticity token. 해결
+      REDMINE_HTTPS: "false"         # HTTPS 안 쓰면 false
+      REDMINE_RELATIVE_URL_ROOT: ""  # 루트(/)에서 접근하면 빈 값
+
+    volumes:
+      - ./redmine/files:/usr/src/redmine/files
+      - ./redmine/plugins:/usr/src/redmine/plugins
+      - ./redmine/themes:/usr/src/redmine/themes
+      - ./redmine/tmp:/usr/src/redmine/tmp
+    networks:
+      manage:
+        ipv4_address: 172.19.5.3
+      db:
+        ipv4_address: 172.19.4.6

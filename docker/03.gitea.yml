@@ -1,0 +1,43 @@
+name: cnd
+
+networks:
+  manage:
+    name: manage-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.5.0/24
+          gateway: 172.19.5.1
+  db:
+    name: db-network
+    external: true
+      
+
+services:
+  gitea:
+    image: gitea/gitea:1.24
+    container_name: gitea
+    hostname: gitea
+    restart: always
+    environment:
+      TZ: Asia/Seoul
+      GITEA__database__DB_TYPE: mysql
+      GITEA__database__HOST: mariadb-master:3306
+      GITEA__database__NAME: gitea
+      GITEA__database__USER: gitea
+      GITEA__database__PASSWD: gitea
+      # Redis 설정
+      #GITEA__cache__ENABLED: true
+      #GITEA__cache__ADAPTER: redis
+      #GITEA__cache__HOST: redis:6379
+    ports:
+      - 3000:3000
+      - 222:22
+    volumes:
+      - ./gitea/data:/var/lib/gitea
+      - ./gitea/config:/etc/gitea
+    networks:
+      manage:
+        ipv4_address: 172.19.5.2
+      db:
+        ipv4_address: 172.19.4.5

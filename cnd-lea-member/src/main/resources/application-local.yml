@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: cnd-lea-member
+
+logging:
+  level:
+    root: info
+    com.fusionsoft.cnd.lea: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+

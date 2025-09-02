@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS redmine CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE USER IF NOT EXISTS 'redmine'@'%' IDENTIFIED BY 'redmine';
+GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'%';
+GRANT ALL PRIVILEGES ON redmine.* TO 'viaura'@'%';
+FLUSH PRIVILEGES;

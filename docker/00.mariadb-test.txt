@@ -1,0 +1,231 @@
+================================================
+==                  [ Master ]                ==
+================================================
+
+1. master 상태를 확인한다
+docker exec -it mariadb-master mysql -uroot -paprkwhs -e "show master status \G"
+
+*************************** 1. row ***************************
+            File: mariadb-bin.000002
+        Position: 330
+    Binlog_Do_DB: viaura
+Binlog_Ignore_DB:
+1 row in set (0.000 sec)
+
+2. DB의 캐릭터셋이 utf8 로 세팅되어있는지 확인한다
+docker exec -it mariadb-master mysql -uroot -paprkwhs -e "show variables like 'c%'"
+MariaDB [(none)]> show variables like 'c%';
++----------------------------------+----------------------------+
+| Variable_name                    | Value                      |
++----------------------------------+----------------------------+
+| character_set_client             | utf8mb3                    |
+| character_set_connection         | utf8mb3                    |
+| character_set_database           | utf8mb3                    |
+| character_set_filesystem         | binary                     |
+| character_set_results            | utf8mb3                    |
+| character_set_server             | utf8mb3                    |
+| character_set_system             | utf8mb3                    |
+| character_sets_dir               | /usr/share/mysql/charsets/ |
+| check_constraint_checks          | ON                         |
+| collation_connection             | utf8mb3_general_ci         |
+| collation_database               | utf8mb3_unicode_ci         |
+| collation_server                 | utf8mb3_unicode_ci         |
+| column_compression_threshold     | 100                        |
+| column_compression_zlib_level    | 6                          |
+| column_compression_zlib_strategy | DEFAULT_STRATEGY           |
+| column_compression_zlib_wrap     | OFF                        |
+| completion_type                  | NO_CHAIN                   |
+| concurrent_insert                | AUTO                       |
+| connect_timeout                  | 10                         |
+| core_file                        | OFF                        |
++----------------------------------+----------------------------+
+14 rows in set (0.01 sec)
+
+3. replica_user 가 제대로 생성되어있는지 확인한다
+docker exec -it mariadb-master mysql -uroot -paprkwhs -e "SELECT user,host,plugin FROM mysql.user"
+
++--------------+-----------+-----------------------+
+| User         | Host      | plugin                |
++--------------+-----------+-----------------------+
+| mariadb.sys  | localhost | mysql_native_password |
+| root         | localhost | mysql_native_password |
+| root         | %         | mysql_native_password |
+| healthcheck  | 127.0.0.1 | mysql_native_password |
+| healthcheck  | ::1       | mysql_native_password |
+| healthcheck  | localhost | mysql_native_password |
+| viaura       | %         | mysql_native_password |
+| replica_user | %         | mysql_native_password |
++--------------+-----------+-----------------------+
+
+
+4. replica_user의 권한을 확인한다
+docker exec -it mariadb-master mysql -uroot -paprkwhs -e "show grants for 'replica_user'@'%'";
+
+
+================================================
+==                  [ Slave ]                 ==
+================================================
+
+1. DB 캐릭터셋이 utf8인지 확인한다
+docker exec -it mariadb-slave01 mysql -uroot -paprkwhs -e "show variables like 'c%'"
+
++----------------------------------+----------------------------+
+| Variable_name                    | Value                      |
++----------------------------------+----------------------------+
+| character_set_client             | utf8mb3                    |
+| character_set_connection         | utf8mb3                    |
+| character_set_database           | utf8mb3                    |
+| character_set_filesystem         | binary                     |
+| character_set_results            | utf8mb3                    |
+| character_set_server             | utf8mb3                    |
+| character_set_system             | utf8mb3                    |
+| character_sets_dir               | /usr/share/mysql/charsets/ |
+| check_constraint_checks          | ON                         |
+| collation_connection             | utf8mb3_general_ci         |
+| collation_database               | utf8mb3_unicode_ci         |
+| collation_server                 | utf8mb3_unicode_ci         |
+| column_compression_threshold     | 100                        |
+| column_compression_zlib_level    | 6                          |
+| column_compression_zlib_strategy | DEFAULT_STRATEGY           |
+| column_compression_zlib_wrap     | OFF                        |
+| completion_type                  | NO_CHAIN                   |
+| concurrent_insert                | AUTO                       |
+| connect_timeout                  | 10                         |
+| core_file                        | OFF                        |
++----------------------------------+----------------------------+
+
+
+2. slave가 정상적으로 리플리케이션이 되고 있는지 확인한다
+docker exec -it mariadb-slave01 mysql -uroot -paprkwhs -e "show slave status\G"
+
+*************************** 1. row ***************************
+                Slave_IO_State: Waiting for master to send event
+                   Master_Host: 172.19.4.2
+                   Master_User: replica_user
+                   Master_Port: 3306
+                 Connect_Retry: 10
+               Master_Log_File: mariadb-bin.000002
+           Read_Master_Log_Pos: 344
+                Relay_Log_File: relay-log.000003
+                 Relay_Log_Pos: 557
+         Relay_Master_Log_File: mariadb-bin.000002
+              Slave_IO_Running: Yes
+             Slave_SQL_Running: Yes
+               Replicate_Do_DB:
+           Replicate_Ignore_DB:
+            Replicate_Do_Table:
+        Replicate_Ignore_Table:
+       Replicate_Wild_Do_Table:
+   Replicate_Wild_Ignore_Table:
+                    Last_Errno: 0
+                    Last_Error:
+                  Skip_Counter: 0
+           Exec_Master_Log_Pos: 344
+               Relay_Log_Space: 860
+               Until_Condition: None
+                Until_Log_File:
+                 Until_Log_Pos: 0
+            Master_SSL_Allowed: No
+            Master_SSL_CA_File:
+            Master_SSL_CA_Path:
+               Master_SSL_Cert:
+             Master_SSL_Cipher:
+                Master_SSL_Key:
+         Seconds_Behind_Master: 0
+ Master_SSL_Verify_Server_Cert: No
+                 Last_IO_Errno: 0
+                 Last_IO_Error:
+                Last_SQL_Errno: 0
+                Last_SQL_Error:
+   Replicate_Ignore_Server_Ids:
+              Master_Server_Id: 1
+                Master_SSL_Crl:
+            Master_SSL_Crlpath:
+                    Using_Gtid: No
+                   Gtid_IO_Pos:
+       Replicate_Do_Domain_Ids:
+   Replicate_Ignore_Domain_Ids:
+                 Parallel_Mode: optimistic
+                     SQL_Delay: 0
+           SQL_Remaining_Delay: NULL
+       Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+              Slave_DDL_Groups: 0
+Slave_Non_Transactional_Groups: 0
+    Slave_Transactional_Groups: 0
+
+
+================================================
+==                  [에러 대처]                 ==
+================================================
+
+1. 제일 흔한것은 slave-init.sql에서 명시한 mariadb-bin 의 location이 정확히 세팅이 안되어 있을 때다
+
+show master status \G
+*************************** 1. row ***************************
+            File: mariadb-bin.000002
+        Position: 330
+    Binlog_Do_DB: viaura
+Binlog_Ignore_DB:
+1 row in set (0.000 sec)
+
+----> mariadb-bin.000002 / 330 포인트 이다. 이것이 slave-init.sql 의
+
+CHANGE MASTER TO
+  MASTER_HOST='172.19.4.2',
+  MASTER_USER='replica_user',
+  MASTER_PASSWORD='money',
+  MASTER_PORT=3306,
+  MASTER_LOG_FILE='mariadb-bin.000002',
+  MASTER_LOG_POS=344,
+  MASTER_CONNECT_RETRY=10;
+
+FILE, POS와 다를 수 있다
+
+이럴때는 slave에서 CHANGE MASTER TO 로 변경해야 한다
+
+a. 서버접속
+docker exec -it mariadb-slave01 bash
+
+b. mysql 접속
+mysql -u root -p
+
+c. replication 중단
+STOP SLAVE;
+
+d. table lock
+FLUSH TABLES WITH READ LOCK;
+
+e. mariadb-bin FILE, POS 세팅
+CHANGE MASTER TO
+  MASTER_HOST='172.19.4.2',
+  MASTER_USER='replica_user',
+  MASTER_PASSWORD='money',
+  MASTER_PORT=3306,
+  MASTER_LOG_FILE='mariadb-bin.000002',
+  MASTER_LOG_POS=344,
+  MASTER_CONNECT_RETRY=10;
+
+f. table unlock;
+UNLOCK TABLES;
+
+g. replication start
+START SLAVE;
+
+h. slave 상태확인
+SHOW SLAVE STATUS\G
+
+
+https://github.com/docker-library/mysql/issues/409
+
+mysql_native_password 플러그인 문제 - mysql client 9.0 이후 mysql_native_password를 지원하지 않고 caching_sha2_password를 사용하여 생기는 접속문제가 생긴다
+
+mysql -u viaura --host 127.0.0.1 --port 3307
+ERROR 2059 (HY000): Authentication plugin 'mysql_native_password' cannot be loaded: dlopen(/usr/local/Cellar/mysql-client/9.0.1/lib/plugin/mysql_native_password.so, 0x0002): tried: '/usr/local/Cellar/mysql-client/9.0.1/lib/plugin/mysql_native_password.so' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/usr/local/Cellar/mysql-client/9.0.1/lib/plugin/mysql_native_password.so' (no such file), '/usr/local/Cellar/mysql-client/9.0.1/lib/plugin/mysql_native_password.so' (no such file)
+
+[해결 1] - mysql-client downgrading
+brew install mysql-client@8.4
+brew unlink mysql
+brew link mysql-client@8.4
+
+[해결 2] - password encryption plugin 변경
+ALTER USER 'viaura'@'%' IDENTIFIED WITH caching_sha2_password BY 'money';

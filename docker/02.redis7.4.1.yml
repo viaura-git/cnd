@@ -1,0 +1,35 @@
+name: cnd
+
+networks:
+  db:
+    name: db-network
+    external: true
+
+
+services:
+  redis:
+    image: redis:7.4.5-alpine
+    restart: always
+    #container-name: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    command: redis-server --save 60 1 --loglevel warning
+    environment:
+      REDIS_ARGS: "--user default off nopass nocommands \
+                   --requirepass admin --user admin on >admin +@admin ~* allcommands \
+                   --requirepass money --user viaura on >money +@dangerous ~*"
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis-data-volume:/data
+      
+    networks:
+      db:
+        ipv4_address: 172.19.4.4
+
+volumes:
+  redis-data-volume:

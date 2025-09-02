@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: cnd-com-auth
+
+  data:
+    redis:
+      host: redis
+
+application:
+  jwt:
+    secret-key: FusionsoftCndProjectSecretKey0123456789
+    expiration: 1

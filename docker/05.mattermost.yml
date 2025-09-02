@@ -1,0 +1,46 @@
+name: cnd
+
+networks:
+  db:
+    name: db-network
+    external: true   # 기존 mariadb 네트워크
+  manage:
+    name: manage-network
+    external: true
+
+services:
+  mattermost:
+    image: mattermost/mattermost-team-edition:7.10.0
+    container_name: mattermost
+    restart: always
+    ports:
+      - "8065:8065"   # 웹 접속 포트
+    environment:
+      MM_USERNAME: mmuser
+      MM_PASSWORD: mmuser
+      MM_DBNAME: mattermost
+      MM_SQLSETTINGS_DRIVERNAME: mysql
+      MM_SQLSETTINGS_DATASOURCE: mmuser:mmuser@tcp(mariadb-master:3306)/mattermost?charset=utf8mb4,utf8
+      MM_SERVICESETTINGS_SITEURL: "http://localhost:8065"
+      # Redis 설정
+      MM_CACHESETTINGS_ENABLE: "true"
+      MM_CACHESETTINGS_ADAPTER: "redis"
+      MM_CACHESETTINGS_REDISADDRESS: "redis:6379"
+    volumes:
+      - ./mattermost/data:/mattermost/data
+      - ./mattermost/config:/mattermost/config
+      - ./mattermost/logs:/mattermost/logs
+      - ./mattermost/plugins:/mattermost/plugins
+      - ./mattermost/client-plugins:/mattermost/client-plugins
+    networks:
+      db:
+        ipv4_address: 172.19.4.6   # 기존 mariadb 네트워크 IP 범위 안에서
+      manage:
+        ipv4_address: 172.19.5.3
+
+# 실행 전에 Mattermost용 DB와 사용자 생성 필요
+# docker exec -it mariadb-master mysql -u root -p
+# CREATE DATABASE mattermost CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+# CREATE USER 'mmuser'@'%' IDENTIFIED BY 'mmuser_password';
+# GRANT ALL PRIVILEGES ON mattermost.* TO 'mmuser'@'%';
+# FLUSH PRIVILEGES;

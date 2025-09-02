@@ -1,0 +1,136 @@
+# version: '3.9'
+name: cnd
+
+networks:
+  frontend:
+    name: frontend-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.2.0/24
+  backend:
+    name: backend-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.3.0/24
+  db:
+    name: db-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.4.0/24
+          gateway: 172.19.4.1
+  manage:
+    name: manage-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.5.0/24
+          gateway: 172.19.5.1
+
+
+services:
+  db-master:
+    image: mariadb:10.6.23-ubi9
+    #user: "1001"
+    restart: always
+    hostname: mariadb-master
+    environment:
+      # https://mariadb.com/kb/en/mariadb-server-docker-official-image-environment-variables
+      TZ: Asia/Seoul
+      MARIADB_ROOT_PASSWORD: aprkwhs
+      MARIADB_DATABASE: prj-db
+      MARIADB_USER: viaura
+      MARIADB_PASSWORD: money
+      MARIADB_REPLICATION_USER: replica_user
+      MARIADB_REPLICATION_PASSWORD: money
+    command:
+      - --server-id=1
+      #- --general_log=ON
+      #- --general_log_file=general.log
+      # https://mariadb.com/kb/en/activating-the-binary-log/
+      # We strongly recommend you use either --log-basename or specify a filename to ensure that replication doesn't stop if the hostname of the computer changes.
+      - --log-basename=master
+      - --expire-logs-days=10
+      # max_binlog_size default is 1G (1073741824)
+      #- --max_binlog_size=1073741824 
+      # Whether binary logging is enabled or not. If the --log-bin option is used, log_bin will be set to ON,
+      - --log-bin=mariadb-bin
+      # https://mariadb.com/kb/en/replication-and-binary-log-system-variables/#binlog_format
+      # default MIXED 10.2.4 or higher
+      #- --binlog-format=mixed
+      #- --binlog-do-db=danchoo_plus
+      # https://stackoverflow.com/questions/44431961/what-is-the-difference-between-binlog-do-db-and-replicate-do-db
+      # The master writes all transactions into its binary log.
+      # binlog-do-db makes the master write only statements for the specified DB into its binary log.
+      # replicate-do-db makes the slave just read statements from the relay log, that are for the specified DB.
+      # replicate-do-db has no effect on the master, since there is no relay log to read from.
+      #- --replicate-do-db=danchoo_plus
+    ports:
+      - 3306:3306
+    container_name: mariadb-master
+    volumes:
+      - mariadb_master_volume:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./init-gitea.sql:/docker-entrypoint-initdb.d/init-gitea.sql:ro
+      - ./init-redmine.sql:/docker-entrypoint-initdb.d/init-redmine.sql:ro
+      - ./init-mattermost.sql:/docker-entrypoint-initdb.d/init-mattermost.sql:ro
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--innodb_initialized']
+      start_period: 5s
+      #start_interval: 10s
+      timeout: 5s
+      interval: 10s
+      retries: 5
+
+    networks:
+      db:
+        ipv4_address: 172.19.4.2
+
+  db-slave01:
+    image: mariadb:10.6.23-ubi9
+    #user: "1001"
+    restart: always
+    hostname: mariadb-slave01
+    environment:
+      # https://mariadb.com/kb/en/mariadb-server-docker-official-image-environment-variables
+      TZ: Asia/Seoul
+      MARIADB_ROOT_PASSWORD: aprkwhs
+      # slave는 master 에서 생기는 대로 리플리케이션 되므로 DB, USER 등등 세팅이 불필요하다
+      #MARIADB_DATABASE: danchoo_plus
+      #MARIADB_USER: viaura
+      #MARIADB_PASSWORD: money
+      MARIADB_MASTER_HOST: mariadb-master
+      MARIADB_REPLICATION_USER: replica_user
+      MARIADB_REPLICATION_PASSWORD: money
+      MARIADB_HEALTHCHECK_GRANTS:
+    command:
+      - --server-id=2
+      - --log-basename=slave01
+      #- --relay-log=relay-log
+      #- --log-slave-updates=ON
+      #- --log-bin=mariadb-bin
+      #- --binlog-format=mixed
+      #- --binlog-do-db=danchoo_plus
+    ports:
+      - 3307:3306
+    container_name: mariadb-slave01
+    volumes:
+      - mariadb_slave01_volume:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/healthcheck.sh', '--innodb_initialized']
+      start_period: 5s
+      #start_interval: 10s
+      timeout: 5s
+      interval: 10s
+      retries: 5
+
+    networks:
+      db:
+        ipv4_address: 172.19.4.3
+
+volumes:
+  mariadb_master_volume:
+  mariadb_slave01_volume:
