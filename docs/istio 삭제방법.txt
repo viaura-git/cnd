@@ -1,0 +1,37 @@
+처음부터 다시해보게 istioctl uninstall 방법 알려줘
+ChatGPT의 말:
+
+네 👍 Bookinfo 같은 샘플 지우기 전에, Istio 자체를 처음부터 깨끗하게 지우려면 istioctl uninstall 명령어를 쓰시면 됩니다.
+
+🗑 Istio 삭제 방법
+1. 설치된 Istio 리소스 확인
+istioctl manifest generate | kubectl delete -f -
+
+
+(이미 설치된 Istio 리소스를 제거하는 안전한 방법)
+
+2. istioctl uninstall
+istioctl uninstall --purge -y
+
+
+--purge: Istio 관련 CRD(CustomResourceDefinition)와 컨트롤 플레인 리소스까지 모두 삭제
+
+-y: 자동 승인(yes 안 물어봄)
+
+3. 삭제 확인
+kubectl get all -n istio-system
+kubectl get crds | grep istio
+
+
+남아 있는 Pod, Service, CRD가 없어야 완전히 지워진 겁니다.
+
+4. 네임스페이스 정리 (선택)
+kubectl delete namespace istio-system
+
+
+(만약 위 uninstall 후에도 네임스페이스가 남아있으면 직접 지워주시면 됩니다)
+
+👉 정리하면, 가장 간단히 완전 삭제하려면 다음 두 줄이면 됩니다:
+
+istioctl uninstall --purge -y
+kubectl delete namespace istio-system

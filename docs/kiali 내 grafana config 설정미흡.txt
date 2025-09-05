@@ -1,0 +1,61 @@
+kiali 내 grafana config 설정미흡
+해결 : 
+설정보기
+kubectl -n istio-system get cm kiali -o yaml
+
+수정 전:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kiali
+  namespace: istio-system
+data:
+  config.yaml: |
+    server:
+      port: 20001
+    external_services:
+      prometheus:
+        url: http://prometheus.istio-system:9090
+      custom_dashboards:
+        enabled: true
+      istio:
+        root_namespace: istio-system
+      tracing:
+        enabled: false
+
+수정 후:
+
+위 config.yaml의 external_services 아래에 grafana 블록을 넣는다
+
+    external_services:
+      prometheus:
+        url: http://prometheus.istio-system:9090  #<---- prometheus 주소 (svc.ns:port)
+      grafana:
+        enabled: true
+        url: http://grafana.istio-system:3000   # <--- 여기 Grafana 서비스 주소
+      custom_dashboards:
+        enabled: true
+      istio:
+        root_namespace: istio-system
+      tracing:
+        enabled: false
+
+ConfiMap 적용 :
+kubectl -n istio-system apply -f kiali-config.yaml
+
+Kiali 재시작 :
+kubectl -n istio-system rollout restart deployment kiali
+
+Kiali UI화면
+istioctl dashboard kiali
+
+
+
+cnd-gateway --> cnd-ingress-gateway 명명변경
+cnd-com / cnd-lea / cnd-res 레이블이 없음
+gRPC 내부통신 변경
+외부직접연결 cnd-gateway.yaml에 정의
+spring security적용여부 판단
+spring security user_details 를 통한 로그인구현
+
+

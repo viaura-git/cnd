@@ -1,0 +1,28 @@
+1. https://github.com/istio/istio/releases/tag/1.27.0 윈도우용 다운로드
+2. 압축해제
+3. cd istio-1.27.0
+4. 환경변수에 cd istio-1.27.0/bin 등록
+5. 필요시 재시작 혹은 파워쉘 새로시작
+
+https://istio.io/latest/docs/setup/getting-started/
+
+6. istioctl로 인스톨
+istioctl install -f samples/bookinfo/demo-profile-no-gateways.yaml -y
+
+no-gateway 옵션으로 설치하는 이유는 
+- istio gateway 와
+- k8s gateway 두가지 방식이 있는데 현재 k8s의 gateway방식이 더 표준이고, istio가 이미 지원하기에 이렇게 설치한다
+
+7. API CRD를 설치 - git이 필요하다
+원문 : 
+kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || \
+{ kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl apply -f -; }
+
+파워쉘용으로는
+- Gateway API CRD가 설치돼 있는지 확인
+kubectl get crd gateways.gateway.networking.k8s.io
+- CRD 설치
+kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl apply -f -
+- 삭제
+kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl delete -f -
+

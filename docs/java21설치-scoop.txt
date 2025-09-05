@@ -1,0 +1,30 @@
+java -version
+
+
+winget install EclipseAdoptium.Temurin.21.JDK
+
+
+패키지관리자를 통한 설치 및 버전변경- scoop
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+
+bucket추가
+scoop bucket add java
+
+추가된 bucket확인
+scoop bucket list
+
+java temurin 버전 서치
+scoop search temurin
+
+
+scoop install temurin17-jdk
+scoop install temurin21-jdk
+
+버전전환
+scoop reset temurin17-jdk
+scoop reset temurin21-jdk
+
+설치된 java version확인
+scoop list
+

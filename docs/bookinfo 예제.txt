@@ -1,0 +1,39 @@
+bookinfo 예제
+
+kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || \
+  kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+---> 
+윈도우용
+파워쉘용으로는
+- Gateway API CRD가 설치돼 있는지 확인
+kubectl get crd gateways.gateway.networking.k8s.io
+- CRD 설치
+kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl apply -f -
+- 삭제
+kubectl kustomize "github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.3.0" | kubectl delete -f -
+
+
+
+파워쉘
+$env:INGRESS_HOST = kubectl get gtw bookinfo-gateway -o jsonpath='{.status.addresses[0].value}'
+$env:INGRESS_PORT = kubectl get gtw bookinfo-gateway -o jsonpath='{.spec.listeners[?(@.name=="http")].port}'
+
+cmd
+set INGRESS_HOST=kubectl get gtw bookinfo-gateway -o jsonpath='{.status.addresses[0].value}'
+set INGRESS_PORT=kubectl get gtw bookinfo-gateway -o jsonpath='{.spec.listeners[?(@.name=="http")].port}'
+
+
+==== 삭제 =====
+1. bookinfo-gateway.yaml 로 설치했으니 삭제도 yaml로 한다
+kubectl delete -f samples/bookinfo/platform/kube/bookinfo.yaml
+
+2. gateway 삭제
+kubectl delete -f samples/bookinfo/gateway-api/bookinfo-gateway.yaml
+
+확인
+kubectl get pods
+kubectl get svc
+kubectl get deployment
+
+서비스는 남아있을 수 있다
+kubectl delete svc productpage-v1 ratings-v1 details-v1 reviews-v1 reviews-v2 reviews-v3

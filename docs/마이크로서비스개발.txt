@@ -1,0 +1,51 @@
+1. docker desktop 설치
+2. docker kubernetes 켜기
+
+
+
+
+kubectl get crd gateways.gateway.networking.k8s.io
+
+1.istio
+istioctl install -f k8s/01.demo-profile-no-gateways.yaml -y
+
+2. namespace 정의
+kubectl apply -f k8s/02.namespace.yaml
+kubectl label namespace cnd-dev istio-injection=enabled
+
+3. bookinfo 서비스로딩
+kubectl apply -f k8s/03.deployments.yaml
+kubectl apply -f k8s/04.cnd-gateway.yaml
+
+kubectl get gateway -n cnd-dev
+kubectl annotate gateway cnd-gateway networking.istio.io/service-type=ClusterIP --namespace=cnd-dev
+
+
+kubectl port-forward svc/cnd-gateway-istio 8080:80 -n cnd-dev
+
+--test
+ kubectl get services -n cnd-dev
+ kubectl get pods -n cnd-dev
+
+kubectl get svc istio-ingressgateway -n istio-system
+http://<INGRESS_IP>/gateway    → cnd-com-gateway
+http://<INGRESS_IP>/member     → cnd-lea-member
+http://<INGRESS_IP>/reserve    → cnd-res-reserve
+
+
+
+kubectl port-forward svc/cnd-gateway-istio 8080:80 -n cnd-dev
+
+1..100 | ForEach-Object { curl.exe -s "http://localhost:8080/api/members/v1/23" | Out-Null }
+
+1..100 | ForEach-Object { curl.exe -s "http://localhost:8080/api/reserves/v1/23" | Out-Null }
+
+
+
+쿠버 외부에서 테스트
+kubectl exec -it cnd-com-api-gateway-f5fcf557b-gxqfg -n cnd-dev -- curl http://member-service.cnd-dev.svc.cluster.local:80/actuator/health
+
+kubectl exec -it cnd-com-api-gateway-f5fcf557b-gxqfg  -n cnd-dev -- curl http://reserve-service.cnd-dev.svc.cluster.local:80/actuator/health
+
+kubectl exec -it cnd-com-api-gateway-f5fcf557b-gxqfg  -n cnd-dev -- curl http://api-gateway.cnd-dev.svc.cluster.local:80/actuator/health
+
