@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cnd-com-auth
+  namespace: cnd-dev
+  labels:
+    app: cnd-com-auth
+    app.kubernetes.io/name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cnd-com-auth
+  template:
+    metadata:
+      labels:
+        app: cnd-com-auth
+        app.kubernetes.io/name: auth-service
+    spec:
+      containers:
+        - name: cnd-com-auth
+          image: cnd/cnd-com-auth:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            # Spring Profile 활성화
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: cnd-dev
+  labels:
+    app: auth-service
+    app.kubernetes.io/name: auth-service
+spec:
+  selector:
+    app: cnd-com-auth
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

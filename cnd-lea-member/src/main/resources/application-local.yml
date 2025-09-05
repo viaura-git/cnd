@@ -3,9 +3,21 @@ spring:
     name: cnd-lea-member
 
 logging:
+  file:
+    name: logs/lea-member.log
   level:
-    root: info
-    com.fusionsoft.cnd.lea: debug
+    root: INFO
+    com.fusionsoft: debug
+    jdbc:
+      resultsettable: INFO
+      sqltiming: OFF
+      sqlonly: INFO
+      audit: OFF
+      resultset: OFF
+      connection: OFF
+    net:
+      sf:
+        log4jdbc: WARN
 
 management:
   endpoints:
@@ -13,3 +25,5 @@ management:
       exposure:
         include: health,info
 
+server:
+  port: 8082

@@ -19,6 +19,7 @@
         <module>cnd-com-gateway</module>
         <module>cnd-lea-member</module>
         <module>cnd-res-reserve</module>
+        <module>cnd-com-auth</module>
     </modules>
 
     <profiles>

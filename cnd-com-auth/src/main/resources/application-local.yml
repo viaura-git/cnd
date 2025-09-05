@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: cnd-com-auth
+
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://localhost:3306/cnd?CharacterEncoding=UTF-8
+    username: viaura
+    password: money
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: never
+
+jwt:
+  #FusionsoftCndProjectSecretKeyPleaseCallFusionSoft+82536097353
+  #Base64 encoded
+  secret: RnVzaW9uc29mdENuZFByb2plY3RTZWNyZXRLZXlQbGVhc2VDYWxsRnVzaW9uU29mdCs4MjUzNjA5NzM1Mw==
+  access-token-validity-seconds: 1209600  # 14 days
+  refresh-token-validity-seconds: 2592000 # 30 days
+
+logging:
+  file:
+    name: logs/auth.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%X{requestId}] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{requestId}] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.fusionsoft: DEBUG
+    org.springframework.security: DEBUG
+    jdbc:
+      resultsettable: INFO
+      sqltiming: OFF
+      sqlonly: INFO
+      audit: OFF
+      resultset: OFF
+      connection: OFF
+    net:
+      sf:
+        log4jdbc: WARN
+server:
+  port: 8081

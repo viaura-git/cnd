@@ -1,0 +1,52 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-redis-mariadb
+  namespace: cnd-dev
+spec:
+  hosts:
+    - host.docker.internal
+  ports:
+    - number: 6379
+      name: tcp-redis
+      protocol: TCP
+    - number: 3306
+      name: tcp-mariadb
+      protocol: TCP
+  resolution: DNS
+  location: MESH_EXTERNAL
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: external-services
+  namespace: cnd-dev
+spec:
+  host: host.docker.internal
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: external-services-egress
+  namespace: cnd-dev
+spec:
+  hosts:
+    - host.docker.internal
+  tcp:
+    - match:
+        - port: 6379
+      route:
+        - destination:
+            host: host.docker.internal
+            port:
+              number: 6379
+    - match:
+        - port: 3306
+      route:
+        - destination:
+            host: host.docker.internal
+            port:
+              number: 3306

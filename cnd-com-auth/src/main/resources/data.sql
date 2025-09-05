@@ -12,7 +12,7 @@ INSERT INTO users (
     'admin@lea.com',
     '$2a$10$7OJPaNi1GZmH4j6UT5AOyONuor9HXuaBYj1Ki0Vbpf8tKOJT10i42', -- "1234"
     '000-1111-2222',
-    1,
+    true,
     now()
 );
 

@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-jwt
+  namespace: cnd-dev
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway       # JWT 검증 적용 대상
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals: ["http://auth-service.cnd-dev.svc.cluster.local/*"]

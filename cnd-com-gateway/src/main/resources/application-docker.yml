@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: cnd-com-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: member-service
+              uri: http://member-service.cnd-dev.svc.cluster.local:80
+              predicates:
+                - Path=/api/members/v1/**
+            - id: reserve-service
+              uri: http://reserve-service.cnd-dev.svc.cluster.local:80
+              predicates:
+                - Path=/api/reserves/v1/**
+            - id: auth-service
+              uri: http://auth-service.cnd-dev.svc.cluster.local:80
+              predicates:
+                - Path=/api/auth/**
+                - Path=/api/test/**
+
+
+  #FusionsoftCndProjectSecretKeyPleaseCallFusionSoft+82536097353
+  #Base64 encoded
+jwt:
+  secret: RnVzaW9uc29mdENuZFByb2plY3RTZWNyZXRLZXlQbGVhc2VDYWxsRnVzaW9uU29mdCs4MjUzNjA5NzM1Mw==
+  access-token-validity-seconds: 1209600  # 14 days
+  refresh-token-validity-seconds: 2592000 # 30 days
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  file:
+    name: logs/api-gateway.log
+  level:
+    root: INFO
+    com.fusionsoft: debug

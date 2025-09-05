@@ -1,0 +1,20 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: cnd-dev
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway       # JWT 인증 적용할 서비스 Pod 레이블
+  jwtRules:
+    - issuer: "cnd-auth"   # JWT 발급자
+      jwksUri: "https://auth-service.cnd-dev.svc.cluster.local/.well-known/jwks.json"
+      fromHeaders:
+        - name: Authorization
+          prefix: "Bearer "
+      outputClaimToHeaders:
+        - claim: sub
+          header: x-cnd-userid
+        - claim: roles
+          header: x-cnd-roles

@@ -1,10 +1,11 @@
 package com.fusionsoft.cnd.lea.member.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -12,9 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
 
     @GetMapping("/{id}")
-    public String index(@PathVariable String id){
-        log.debug("index started");
-        log.debug("member id is {}", id);
-        return "Member info for id = " + id;
+    public ResponseEntity<?> index(
+            @PathVariable String id,
+            @RequestHeader("x-cnd-username") String username,
+            @RequestHeader("x-cnd-roles") String rolesHeader) {
+
+        log.debug("Member request for id={}, username={}, roles={}", id, username, rolesHeader);
+
+        List<String> roles = Arrays.asList(rolesHeader.split(","));
+        if (!roles.contains("ROLE_USER")) {
+            return ResponseEntity.status(403).body("Forbidden: ROLE_USER required");
+        }
+
+        return ResponseEntity.ok("Member info for id=" + id + ", username=" + username);
     }
 }
