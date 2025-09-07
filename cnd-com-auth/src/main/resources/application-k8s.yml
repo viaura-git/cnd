@@ -19,7 +19,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: maia
 
   sql:
     init:
@@ -28,7 +27,7 @@ spring:
 jwt:
   #FusionsoftCndProjectSecretKeyPleaseCallFusionSoft+82536097353
   #Base64 encoded
-  secret: RnVzaW9uc29mdENuZFByb2plY3RTZWNyZXRLZXlQbGVhc2VDYWxsRnVzaW9uU29mdCs4MjUzNjA5NzM1Mw==
+  secret: QWApA/UT9UwgqbnIANd74/HEhd2JikcU9xjqEpgMAYY=
   access-token-validity-seconds: 1209600  # 14 days
   refresh-token-validity-seconds: 2592000 # 30 days
 
