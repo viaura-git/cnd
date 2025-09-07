@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: cnd-com-auth
-          image: cnd/cnd-com-auth:dev
+          image: cnd/cnd-com-auth:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
