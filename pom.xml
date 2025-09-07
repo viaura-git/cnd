@@ -34,6 +34,59 @@
         </profile>
     </profiles>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>3.4.6</version>
+                    <configuration>
+                        <from>
+                            <image>eclipse-temurin:21.0.8_9-jre-ubi9-minimal</image>
+                        </from>
+
+                        <!-- Jib에서는 label, env, workingDirectory 전부 container 안에 들어간다 -->
+                        <container>
+                            <labels>
+                                <author>FusionSoft</author>
+                            </labels>
+                            <environment>
+                                <TZ>Asia/Seoul</TZ>
+                            </environment>
+                            <workingDirectory>/app</workingDirectory>
+                            <!-- files, entrypoint 는 더이상 필요치 않다
+                            <files>
+                                <file>
+                                    <from>${project.build.directory}/${project.artifactId}-${project.version}.jar</from>
+                                    <into>/app/app.jar</into>
+                                </file>
+                            </files>
+                            <entrypoint>
+                                <shell>java</shell>
+                                <arg>-jar</arg>
+                                <arg>/app/app.jar</arg>
+                            </entrypoint>
+                            -->
+                            <ports>
+                                <port>8080</port>
+                            </ports>
+                        </container>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <configuration>
+                        <skipTests>true</skipTests>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
 
 
 </project>

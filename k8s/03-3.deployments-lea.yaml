@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cnd-lea-member
+  namespace: cnd-dev
+  labels:
+    app: cnd-lea-member
+    app.kubernetes.io/name: member-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cnd-lea-member
+  template:
+    metadata:
+      labels:
+        app: cnd-lea-member
+        app.kubernetes.io/name: member-service
+    spec:
+      containers:
+        - name: cnd-lea-member
+          image: cnd/cnd-lea-member:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-service
+  namespace: cnd-dev
+  labels:
+    app: member-service
+    app.kubernetes.io/name: member-service
+spec:
+  selector:
+    app: cnd-lea-member
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

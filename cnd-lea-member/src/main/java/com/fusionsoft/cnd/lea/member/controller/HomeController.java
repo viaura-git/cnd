@@ -21,6 +21,7 @@ public class HomeController {
         log.debug("Member request for id={}, username={}, roles={}", id, username, rolesHeader);
 
         List<String> roles = Arrays.asList(rolesHeader.split(","));
+
         if (!roles.contains("ROLE_USER")) {
             return ResponseEntity.status(403).body("Forbidden: ROLE_USER required");
         }

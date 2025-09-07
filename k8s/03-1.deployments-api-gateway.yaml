@@ -26,14 +26,14 @@ spec:
     spec:
       containers:
         - name: cnd-com-api-gateway
-          image: cnd/cnd-com-api-gateway:dev
+          image: cnd/cnd-com-api-gateway:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
             # Spring Profile 활성화
             - name: SPRING_PROFILES_ACTIVE
-              value: docker
+              value: k8s
             # JWT Secret (Secret에서 주입)
             - name: JWT_SECRET
               valueFrom:

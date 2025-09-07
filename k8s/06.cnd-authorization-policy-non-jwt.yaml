@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: api-gateway
+      istio-injection: enabled
   action: ALLOW
   rules:
     - to:
@@ -15,3 +15,4 @@ spec:
               - "/api/auth/login"
               - "/api/auth/register"
               - "/api/auth/logout"
+              - "/.well-known/jwks.jason"

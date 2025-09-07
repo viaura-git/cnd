@@ -19,14 +19,14 @@ spec:
     spec:
       containers:
         - name: cnd-com-auth
-          image: cnd/cnd-com-auth:dev
+          image: cnd/cnd-com-auth:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
             # Spring Profile 활성화
             - name: SPRING_PROFILES_ACTIVE
-              value: docker
+              value: k8s
 ---
 apiVersion: v1
 kind: Service
