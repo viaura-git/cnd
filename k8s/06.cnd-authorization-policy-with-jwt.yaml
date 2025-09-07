@@ -6,9 +6,10 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: api-gateway       # JWT 검증 적용 대상
+      istio-injection: enabled       # JWT 검증 적용 대상
   action: ALLOW
   rules:
     - from:
         - source:
+            #requestPrincipals: ["cnd-auth/*"]
             requestPrincipals: ["http://auth-service.cnd-dev.svc.cluster.local/*"]
