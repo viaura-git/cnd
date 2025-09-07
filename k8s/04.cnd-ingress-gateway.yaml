@@ -21,26 +21,32 @@ metadata:
 spec:
   parentRefs:
     - name: cnd-ingress-gateway
-      sectionName: http         # 어떤 listener에 붙을지 명확히
+      sectionName: http
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/auth/
+        - path:
+            type: PathPrefix
+            value: /api/test/
+        - path:
+            type: PathPrefix
+            value: /.well-known/
       backendRefs:
-        - name: api-gateway
+        - name: auth-service
           port: 80
-#    - matches:
-#        - path:
-#            type: PathPrefix
-#            value: /api/members/v1
-#      backendRefs:
-#        - name: member-service
-#          port: 80
-#    - matches:
-#        - path:
-#            type: PathPrefix
-#            value: /api/reserves/v1
-#      backendRefs:
-#        - name: reserve-service
-#          port: 80
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/members/v1
+      backendRefs:
+        - name: member-service
+          port: 80
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/reserves/v1
+      backendRefs:
+        - name: reserve-service
+          port: 80
