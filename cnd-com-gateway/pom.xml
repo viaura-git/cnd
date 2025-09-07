@@ -98,24 +98,21 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- docker build -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <to>
+                        <image>cnd/${project.artifactId}:${project.version}</image>
+                    </to>
+                    <container>
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                        <mainClass>com.fusionsoft.cnd.com.gateway.CndComGatewayApplication</mainClass>
+                    </container>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>local</id>
-            <properties>
-                <spring.profiles.active>local</spring.profiles.active>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>docker</id>
-            <properties>
-                <spring.profiles.active>docker</spring.profiles.active>
-            </properties>
-        </profile>
-    </profiles>
-
-
 </project>

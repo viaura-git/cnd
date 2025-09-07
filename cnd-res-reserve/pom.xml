@@ -64,6 +64,21 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- docker build -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <to>
+                        <image>cnd/${project.artifactId}:${project.version}</image>
+                    </to>
+                    <container>
+                        <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                        <mainClass>com.fusionsoft.cnd.res.reserve.CndResReserveApplication</mainClass>
+                    </container>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
